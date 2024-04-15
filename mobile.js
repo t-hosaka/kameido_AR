@@ -168,7 +168,37 @@ function init() {
 	});
 }
 
+function requestDeviceOrientationPermission() {
+  // DeviceOrientation または DeviceMotion の許可を要求する関数
+  if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+    DeviceOrientationEvent.requestPermission()
+      .then(permissionState => {
+        if (permissionState === 'granted') {
+          // 許可が得られた場合、DeviceOrientationControls を接続
+          connectDeviceOrientationControls();
+        } else {
+          // 許可が得られなかった場合、ユーザーに通知
+          alert('Device orientation permission not granted');
+        }
+      })
+      .catch(console.error);
+  } else {
+    // ブラウザが requestPermission メソッドをサポートしていない場合
+    // 旧来の方法で DeviceOrientationControls を接続
+    connectDeviceOrientationControls();
+  }
+}
+
+function connectDeviceOrientationControls() {
+  // DeviceOrientationControls を接続する既存のコード
+  app.controls = devControls;
+  app.controls.connect();
+}
+
 function startARMode(position) {
+  // ARモード開始前にデバイスの傾きの許可を要求
+  requestDeviceOrientationPermission();
+
 	ARMode = true;
 	app.camera.fov = Q3D.Config.AR.FOV;
 	app.camera.updateProjectionMatrix();
